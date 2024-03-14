@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CriarJogadorDto } from './dtos/criar-jogador.dto';
 import { Jogador } from './interfaces/jogador.interface';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,10 +10,12 @@ export class JogadoresService {
   private jogadores: Jogador[] = [];
   private readonly logger = new Logger(JogadoresService.name);
 
-  async criarAtualizarJogador(criaJogadorDto: CriarJogadorDto): Promise<void> {
+  async criarAtualizarJogador(
+    criaJogadorDto: CriarJogadorDto,
+  ): Promise<string> {
     try {
       const { email } = criaJogadorDto;
-      const jogadorFind = await this.jogadores.find(
+      const jogadorFind = this.jogadores.find(
         (jogador) => jogador.email === email,
       );
 
@@ -21,9 +23,10 @@ export class JogadoresService {
         this.atualizar(jogadorFind, criaJogadorDto);
       } else {
         this.criar(criaJogadorDto);
+        return 'Criado com Sucesso';
       }
     } catch (error) {
-      console.log(error);
+      return Promise.reject(error);
     }
   }
 
@@ -54,5 +57,27 @@ export class JogadoresService {
 
   async getAll(): Promise<Jogador[]> {
     return this.jogadores;
+  }
+
+  async getByEmail(email: string): Promise<Jogador> {
+    try {
+      const jogador = this.jogadores.find((jogador) => jogador.email === email);
+      if (!jogador)
+        throw new NotFoundException(`Jogador com email ${email} not found`);
+      return jogador;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async removeByEmail(email: string): Promise<string> {
+    const jogadorEncontrado = this.jogadores.findIndex(
+      (jogador) => jogador.email === email,
+    );
+
+    if (jogadorEncontrado) {
+      this.jogadores.splice(jogadorEncontrado, 1);
+      return 'Removido com sucesso';
+    }
   }
 }
