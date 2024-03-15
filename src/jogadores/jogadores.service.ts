@@ -33,7 +33,6 @@ export class JogadoresService {
 
   private async criar(criaJogadorDto: CriarJogadorDto): Promise<Jogador> {
     const jogadorCriado = new this.jogadorModel(criaJogadorDto);
-
     return await jogadorCriado.save();
   }
 
