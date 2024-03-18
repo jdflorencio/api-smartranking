@@ -11,6 +11,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { CriarJogadorDto } from './dtos/criar-jogador.dto';
+import { AtualizarJogadorDto } from './dtos/atualizar-jogador.dto';
 import { JogadoresService } from './jogadores.service';
 import { Jogador } from './interfaces/jogador.interface';
 import { ApiTags } from '@nestjs/swagger';
@@ -23,7 +24,7 @@ export class JogadoresController {
 
   @Post()
   @UsePipes(ValidationPipe)
-  async criar(@Body() criarJogadorDto: CriarJogadorDto) {
+  async criar(@Body() criarJogadorDto: CriarJogadorDto): Promise<Jogador> {
     return this.service.criar(criarJogadorDto);
   }
 
@@ -31,9 +32,9 @@ export class JogadoresController {
   @UsePipes(ValidationPipe)
   async atualizar(
     @Param('_id', JogadoresValidacaoParametrosPipe) _id: string,
-    @Body() criarJogadorDto: CriarJogadorDto,
+    @Body() atualizarJogadorDto: AtualizarJogadorDto,
   ): Promise<void> {
-    await this.service.atualizar(_id, criarJogadorDto);
+    await this.service.atualizar(_id, atualizarJogadorDto);
   }
 
   @Get()

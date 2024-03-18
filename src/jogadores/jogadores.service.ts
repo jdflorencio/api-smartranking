@@ -4,9 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CriarJogadorDto } from './dtos/criar-jogador.dto';
-import { Jogador } from './interfaces/jogador.interface';
+import { AtualizarJogadorDto } from './dtos/atualizar-jogador.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Jogador } from './interfaces/jogador.interface';
 
 //esse classe passou a ser um provider
 @Injectable()
@@ -29,7 +30,7 @@ export class JogadoresService {
 
   async atualizar(
     _id: string,
-    criaJogadorDto: CriarJogadorDto,
+    atualizaJogadorDto: AtualizarJogadorDto,
   ): Promise<Jogador> {
     const findJogador = await this.jogadorModel.findById(_id).exec();
 
@@ -37,7 +38,7 @@ export class JogadoresService {
 
     return await this.jogadorModel.findOneAndUpdate(
       { _id },
-      { $set: criaJogadorDto },
+      { $set: atualizaJogadorDto },
     );
   }
 
