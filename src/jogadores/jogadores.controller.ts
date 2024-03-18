@@ -1,8 +1,21 @@
-import { Body, Controller, Delete, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { CriarJogadorDto } from './dtos/criar-jogador.dto';
+import { AtualizarJogadorDto } from './dtos/atualizar-jogador.dto';
 import { JogadoresService } from './jogadores.service';
 import { Jogador } from './interfaces/jogador.interface';
 import { ApiTags } from '@nestjs/swagger';
+import { JogadoresValidacaoParametrosPipe } from './pipes/jogadores-validacao-parametros.pipe';
 
 @ApiTags('Jogadores')
 @Controller('api/v1/jogadores')
@@ -10,20 +23,36 @@ export class JogadoresController {
   constructor(private readonly service: JogadoresService) {}
 
   @Post()
-  async criarAtualizarJogador(@Body() criarJogadorDto: CriarJogadorDto) {
-    return this.service.criarAtualizarJogador(criarJogadorDto);
+  @UsePipes(ValidationPipe)
+  async criar(@Body() criarJogadorDto: CriarJogadorDto): Promise<Jogador> {
+    return this.service.criar(criarJogadorDto);
+  }
+
+  @Put('/:_id')
+  @UsePipes(ValidationPipe)
+  async atualizar(
+    @Param('_id', JogadoresValidacaoParametrosPipe) _id: string,
+    @Body() atualizarJogadorDto: AtualizarJogadorDto,
+  ): Promise<void> {
+    await this.service.atualizar(_id, atualizarJogadorDto);
   }
 
   @Get()
-  async getByEmail(
-    @Query('email') email: string,
-  ): Promise<Jogador[] | Jogador> {
-    if (!email) return this.service.getAll();
-    return this.service.getByEmail(email);
+  async getAll(): Promise<Jogador[]> {
+    return this.service.getAll();
   }
 
-  @Delete()
-  async remove(@Query('email') email: string): Promise<void> {
-    this.service.removeByEmail(email);
+  @Get('/:_id')
+  async getById(
+    @Param('_id', JogadoresValidacaoParametrosPipe) _id: string,
+  ): Promise<Jogador> {
+    return this.service.getById(_id);
+  }
+
+  @Delete('/:_id')
+  async remove(
+    @Param('_id', JogadoresValidacaoParametrosPipe) _id: string,
+  ): Promise<void> {
+    this.service.removeById(_id);
   }
 }
