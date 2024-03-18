@@ -6,10 +6,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('SmartRanking')
+    .setTitle('API - SmartRanking')
     .setDescription('API para gerenciar ranks de competição')
     .setVersion('1.0')
-    .addTag('ranking')
+    .addTag('Jogadores')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

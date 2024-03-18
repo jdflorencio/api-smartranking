@@ -7,8 +7,6 @@ import { Model } from 'mongoose';
 //esse classe passou a ser um provider
 @Injectable()
 export class JogadoresService {
-  private jogadores: Jogador[] = [];
-  private readonly logger = new Logger(JogadoresService.name);
 
   constructor(
     @InjectModel('Jogador') private readonly jogadorModel: Model<Jogador>,
@@ -16,15 +14,14 @@ export class JogadoresService {
 
   async criarAtualizarJogador(
     criaJogadorDto: CriarJogadorDto,
-  ): Promise<string> {
+  ): Promise<Jogador> {
     try {
       const { email } = criaJogadorDto;
       const jogadorFind = await this.jogadorModel.findOne({ email }).exec();
       if (jogadorFind) {
-        await this.atualizar(criaJogadorDto);
+        return await this.atualizar(criaJogadorDto);
       } else {
-        await this.criar(criaJogadorDto);
-        return 'Criado com Sucesso';
+        return await this.criar(criaJogadorDto);
       }
     } catch (error) {
       return Promise.reject(error);

@@ -2,7 +2,9 @@ import { Body, Controller, Delete, Get, Post, Query } from '@nestjs/common';
 import { CriarJogadorDto } from './dtos/criar-jogador.dto';
 import { JogadoresService } from './jogadores.service';
 import { Jogador } from './interfaces/jogador.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Jogadores')
 @Controller('api/v1/jogadores')
 export class JogadoresController {
   constructor(private readonly service: JogadoresService) {}
