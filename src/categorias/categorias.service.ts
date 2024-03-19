@@ -38,9 +38,7 @@ export class CategoriasService {
     try {
       const findCategoria = await this.categoriaModel.findById(_id).exec();
       if (!findCategoria)
-        throw new NotFoundException(
-          `Categoria Não foi encontrada ${atualizarCategoriaDto.categoria}`,
-        );
+        throw new NotFoundException(`Categoria Não foi encontrada`);
 
       return await this.categoriaModel.findByIdAndUpdate(
         { _id },

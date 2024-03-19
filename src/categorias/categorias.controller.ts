@@ -7,12 +7,15 @@ import {
   Param,
   Put,
   Get,
+  NotFoundException,
 } from '@nestjs/common';
 import { CriarCategoriaDto } from './dtos/criar-categorias.dto';
 import { CategoriasService } from './categorias.service';
 import { Categoria } from './interfaces/categorias.interface';
 import { AtualizarCategoriaDto } from './dtos/atualizar-categoria.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Categorias')
 @Controller('api/v1/categorias')
 export class CategoriasController {
   constructor(private readonly service: CategoriasService) {}
@@ -33,7 +36,15 @@ export class CategoriasController {
 
   @Get('/:_id')
   async getById(@Param('_id') _id: string): Promise<Categoria> {
-    return await this.service.getById(_id);
+    try {
+      const categoria = await this.service.getById(_id);
+      if (!categoria)
+        throw new NotFoundException(`Categoria Não Foi encontrada`);
+
+      return categoria;
+    } catch (error) {
+      Promise.reject(error);
+    }
   }
 
   @Get()
