@@ -32,8 +32,8 @@ export class CategoriasController {
   }
 
   @Get('/:_id')
-  async getById(@Param('id') _id: string): Promise<Categoria> {
-    return this.service.getById(_id);
+  async getById(@Param('_id') _id: string): Promise<Categoria> {
+    return await this.service.getById(_id);
   }
 
   @Get()

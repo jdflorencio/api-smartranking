@@ -52,7 +52,7 @@ export class CategoriasService {
   }
 
   async getById(id: string): Promise<Categoria> {
-    return this.categoriaModel.findById(id).exec();
+    return await this.categoriaModel.findById(id).exec();
   }
 
   async getAll(): Promise<Categoria[]> {
