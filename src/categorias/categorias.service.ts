@@ -1,6 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CriarCategoriaDto } from './dtos/criar-categorias.dto';
-import { AtualizaCategoriaDto } from './dtos/atualiza-categoria.dto';
+import { AtualizarCategoriaDto } from './dtos/atualizar-categoria.dto';
 import { Categoria } from './interfaces/categorias.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -20,7 +24,7 @@ export class CategoriasService {
 
     if (findCategoria)
       throw new BadRequestException(
-        `Essa Categoria já está cadastrada: ${findCategoria}`,
+        `Essa Categoria já está cadastrada: "${findCategoria.categoria}"`,
       );
 
     const categoriaSave = new this.categoriaModel(criarCategoriaDto);
@@ -28,9 +32,30 @@ export class CategoriasService {
   }
 
   async atualizar(
-    id: string,
-    atualizarCategoriaDto: AtualizaCategoriaDto,
+    _id: string,
+    atualizarCategoriaDto: AtualizarCategoriaDto,
   ): Promise<Categoria> {
-    await this.categoriaModel.findByIdAndUpdate(id, atualizarCategoriaDto);
+    try {
+      const findCategoria = await this.categoriaModel.findById(_id).exec();
+      if (!findCategoria)
+        throw new NotFoundException(
+          `Categoria Não foi encontrada ${atualizarCategoriaDto.categoria}`,
+        );
+
+      return await this.categoriaModel.findByIdAndUpdate(
+        { _id },
+        { $set: atualizarCategoriaDto },
+      );
+    } catch (error) {
+      Promise.reject(error);
+    }
+  }
+
+  async getById(id: string): Promise<Categoria> {
+    return this.categoriaModel.findById(id).exec();
+  }
+
+  async getAll(): Promise<Categoria[]> {
+    return await this.categoriaModel.find().exec();
   }
 }
