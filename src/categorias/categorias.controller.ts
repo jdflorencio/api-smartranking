@@ -51,4 +51,9 @@ export class CategoriasController {
   async getAll(): Promise<Categoria[]> {
     return await this.service.getAll();
   }
+
+  @Post('/:categoria/jogadores/:idJogador')
+  async atribuirCategoriaJogador(@Param() params: string[]): Promise<void> {
+    await this.service.setJogadorCategoria(params);
+  }
 }
