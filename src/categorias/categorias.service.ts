@@ -47,7 +47,7 @@ export class CategoriasService {
         { $set: atualizarCategoriaDto },
       );
     } catch (error) {
-      Promise.reject(error);
+      throw error;
     }
   }
 
