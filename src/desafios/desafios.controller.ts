@@ -21,7 +21,7 @@ export class DesafiosController {
 
   @Post()
   async save(@Body() criarDesafioDto: CriarDesafioDto): Promise<Desafio> {
-    return this.service.criar(criarDesafioDto);
+    return await this.service.criar(criarDesafioDto);
   }
 
   @Put(`/:_id`)
@@ -30,7 +30,7 @@ export class DesafiosController {
     @Param('id', ValidacaoParametrosPipe) _id: string,
     @Body() atualizaDesafioDto: AtualizarDesafioDto,
   ): Promise<Desafio> {
-    return this.service.atualizar(_id, atualizaDesafioDto);
+    return await this.service.atualizar(_id, atualizaDesafioDto);
   }
 
   @Get(`/:_id`)
@@ -38,11 +38,11 @@ export class DesafiosController {
   async getBydId(
     @Param('id', ValidacaoParametrosPipe) _id: string,
   ): Promise<Desafio> {
-    return this.service.getById(_id);
+    return await this.service.getById(_id);
   }
 
   @Get()
   async getAll(): Promise<Desafio[]> {
-    return this.service.getGetAll();
+    return await this.service.getGetAll();
   }
 }
