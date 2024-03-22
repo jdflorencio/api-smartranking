@@ -10,6 +10,7 @@ import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { JogadoresService } from "src/jogadores/jogadores.service";
 import { CategoriasService } from "src/categorias/categorias.service";
+import { AtribuirDesafiosPartidasDto } from "./dtos/atribuir-desafios-partidas.dto";
 
 @Injectable()
 export class DesafiosService {
@@ -98,6 +99,16 @@ export class DesafiosService {
 
   async getGetAll(): Promise<Desafio[]> {
     return await this.desafioModel.find().exec();
+  }
+
+  async atribuirPartidaDesafio(
+    _id: string,
+    atribuirDesafiosPartidasDto: AtribuirDesafiosPartidasDto
+  ): Promise<void> {
+    await this.desafioModel.updateOne(
+      { _id },
+      { $set: AtribuirDesafiosPartidasDto }
+    );
   }
 
   async deleteById(_id: string): Promise<void> {
