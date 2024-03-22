@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { CriarDesafioDto } from "./dtos/criar-desafio.dto";
 import { AtualizarDesafioDto } from "./dtos/atualizar-desafio.dto";
 import { Desafio, DesafiosStatus } from "./interfaces/desafio.interface";
@@ -36,10 +40,10 @@ export class DesafiosService {
 
     await this.solicitanteCategoria(solicitante._id);
     await this.verificarJogador(solicitante._id);
-    
+
     const desafio = new this.desafioModel(desafioDto);
-    desafio.status = DesafiosStatus.PENDENTE
-    desafio.categoria = "A"
+    desafio.status = DesafiosStatus.PENDENTE;
+    desafio.categoria = "A";
     return await desafio.save();
   }
 
@@ -48,10 +52,18 @@ export class DesafiosService {
     desafioDto: AtualizarDesafioDto
   ): Promise<Desafio> {
     try {
-      const { solicitante } = desafioDto;
-      await this.verificarJogador(solicitante._id);
       const findDesafio = await this.desafioModel.findById(_id).exec();
       if (!findDesafio) throw new NotFoundException(`Desafio não encontrado`);
+
+      findDesafio;
+      if (
+        findDesafio.status == DesafiosStatus.PENDENTE ||
+        DesafiosStatus.REALIZADO
+      ) {
+        throw new BadRequestException(
+          `Status PENDENTE E REALIZADO não podem ser alterado.`
+        );
+      }
 
       return await this.desafioModel.findByIdAndUpdate(
         { _id },
@@ -63,10 +75,32 @@ export class DesafiosService {
   }
 
   async getById(_id: string): Promise<Desafio> {
-    return await this.desafioModel.findById(_id).exec();
+    let findDesafio: Desafio = await this.desafioModel.findById(_id).exec();
+    if (!findDesafio) {
+      findDesafio = await this.getJogadorDesafio(_id);
+    }
+
+    if (!findDesafio) throw new NotFoundException(`Desafio não Foi encontrado`);
+
+    return findDesafio;
+  }
+
+  async getJogadorDesafio(_id: string): Promise<Desafio> {
+    const query = {
+      jogadores: {
+        $elemMatch: {
+          $eq: _id,
+        },
+      },
+    };
+    return await this.desafioModel.findOne(query).exec();
   }
 
   async getGetAll(): Promise<Desafio[]> {
     return await this.desafioModel.find().exec();
+  }
+
+  async deleteById(_id: string): Promise<void> {
+    await this.desafioModel.deleteOne({ _id }).exec();
   }
 }
