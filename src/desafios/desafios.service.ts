@@ -5,15 +5,18 @@ import {
 } from "@nestjs/common";
 import { CriarDesafioDto } from "./dtos/criar-desafio.dto";
 import { AtualizarDesafioDto } from "./dtos/atualizar-desafio.dto";
-import { Desafio, DesafiosStatus } from "./interfaces/desafio.interface";
+import { Desafio } from "./interfaces/desafio.interface";
+import { DesafiosStatus } from "./interfaces/desafio-status.enum";
 import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { JogadoresService } from "src/jogadores/jogadores.service";
 import { CategoriasService } from "src/categorias/categorias.service";
 import { AtribuirDesafiosPartidasDto } from "./dtos/atribuir-desafios-partidas.dto";
+import { Categoria } from "src/categorias/interfaces/categorias.interface";
+import { DesafiosServiceInterface } from "./interfaces/desafio-service.interface";
 
 @Injectable()
-export class DesafiosService {
+export class DesafiosService implements DesafiosServiceInterface {
   constructor(
     @InjectModel("Desafio") private readonly desafioModel: Model<Desafio>,
     private readonly jogadorService: JogadoresService,
@@ -24,7 +27,7 @@ export class DesafiosService {
     await this.jogadorService.getById(_id);
   }
 
-  private async solicitanteCategoria(_id: string): Promise<void> {
+  private async solicitanteCategoria(_id: string): Promise<Categoria> {
     const categorias = await this.categoriaService.getAll();
     const jogadorCategoria = categorias.find((c) =>
       c.jogadores.find((j) => j._id == _id)
@@ -35,17 +38,31 @@ export class DesafiosService {
         `Solicitante não foi encontrado em categorias`
       );
     }
+    return jogadorCategoria;
   }
   async criar(desafioDto: CriarDesafioDto): Promise<Desafio> {
-    const { solicitante } = desafioDto;
+    const { solicitante, jogadores } = desafioDto;
 
-    await this.solicitanteCategoria(solicitante._id);
-    await this.verificarJogador(solicitante._id);
+    try {
+      const categoriaJogador = await this.solicitanteCategoria(solicitante._id);
+      await this.verificarJogador(solicitante._id);
 
-    const desafio = new this.desafioModel(desafioDto);
-    desafio.status = DesafiosStatus.PENDENTE;
-    desafio.categoria = "A";
-    return await desafio.save();
+      let promise = jogadores.map((jogador) =>
+        this.verificarJogador(jogador._id)
+      );
+
+      await Promise.all(promise);
+
+      const desafioCriado: Desafio = new this.desafioModel(desafioDto);
+      desafioCriado.status = DesafiosStatus.PENDENTE;
+      desafioCriado.categoria = categoriaJogador.categoria;
+      desafioCriado.dataHoraSolicitacao = new Date();
+
+      return await desafioCriado.save();
+    } catch (error) {
+      console.log("error>>", error);
+      throw error;
+    }
   }
 
   async atualizar(
