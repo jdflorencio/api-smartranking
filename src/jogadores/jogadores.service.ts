@@ -50,7 +50,7 @@ export class JogadoresService {
     try {
       const jogador = await this.jogadorModel.findById(_id).exec();
       if (!jogador)
-        throw new NotFoundException(`Jogador com email ${_id} not found`);
+        throw new NotFoundException(`Jogador com id: ${_id} not found`);
       return jogador;
     } catch (error) {
       return Promise.reject(error);

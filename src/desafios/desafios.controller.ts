@@ -8,11 +8,12 @@ import {
   Delete,
   UsePipes,
   ValidationPipe,
+  Query,
 } from "@nestjs/common";
 import { DesafiosService } from "./desafios.service";
 import { CriarDesafioDto } from "./dtos/criar-desafio.dto";
 import { AtualizarDesafioDto } from "./dtos/atualizar-desafio.dto";
-import { AtribuirDesafiosPartidasDto } from "./dtos/atribuir-desafios-partidas.dto"
+import { AtribuirDesafiosPartidasDto } from "./dtos/atribuir-desafios-partidas.dto";
 import { Desafio } from "./interfaces/desafio.interface";
 import { ApiTags } from "@nestjs/swagger";
 import { ValidacaoParametrosPipe } from "src/common/pipes/validacao-parametros.pipe";
@@ -29,7 +30,7 @@ export class DesafiosController {
   @Put(`/:_id`)
   @UsePipes(ValidationPipe)
   async update(
-    @Param("id", ValidacaoParametrosPipe) _id: string,
+    @Param("_id", ValidacaoParametrosPipe) _id: string,
     @Body() atualizaDesafioDto: AtualizarDesafioDto
   ): Promise<Desafio> {
     return await this.service.atualizar(_id, atualizaDesafioDto);
@@ -43,17 +44,11 @@ export class DesafiosController {
     return await this.service.getById(_id);
   }
 
-  /*@Get(`/:_id`)
-  @UsePipes(ValidationPipe)
-  async getJogadordesafio(
-    @Param('id', ValidacaoParametrosPipe) _id: string,
-  ): Promise<Desafio> {
-    return await this.service.getJogadorDesafio(_id);
-  }*/
-
   @Get()
-  async getAll(): Promise<Desafio[]> {
-    return await this.service.getGetAll();
+  async getAll(@Query("idJogador") _id: string): Promise<Desafio[] | Desafio> {
+    return _id
+      ? await this.service.getJogadorDesafio(_id)
+      : await this.service.getGetAll();
   }
 
   @Post(`/:_id`)

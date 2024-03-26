@@ -104,6 +104,9 @@ export class DesafiosService implements DesafiosServiceInterface {
   }
 
   async getJogadorDesafio(_id: string): Promise<Desafio> {
+
+    await this.verificarJogador(_id)
+
     const query = {
       jogadores: {
         $elemMatch: {
@@ -111,11 +114,16 @@ export class DesafiosService implements DesafiosServiceInterface {
         },
       },
     };
+
     return await this.desafioModel.findOne(query).exec();
   }
 
   async getGetAll(): Promise<Desafio[]> {
-    return await this.desafioModel.find().exec();
+    return await await this.desafioModel.find()
+    .populate("solicitante")
+    .populate("jogadores")
+    .populate("partida")
+    .exec();
   }
 
   async atribuirPartidaDesafio(
@@ -124,7 +132,7 @@ export class DesafiosService implements DesafiosServiceInterface {
   ): Promise<void> {
     await this.desafioModel.updateOne(
       { _id },
-      { $set: AtribuirDesafiosPartidasDto }
+      { $set: atribuirDesafiosPartidasDto }
     );
   }
 
