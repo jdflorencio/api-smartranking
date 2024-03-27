@@ -2,7 +2,7 @@ import { CriarDesafioDto } from "../dtos/criar-desafio.dto";
 import { AtualizarDesafioDto } from "../dtos/atualizar-desafio.dto";
 import { Desafio } from "./desafio.interface";
 import { AtribuirDesafiosPartidasDto } from "../dtos/atribuir-desafios-partidas.dto";
-import { Partida } from "src/partidas/interfaces/partida.interface";
+import { Partida } from "../interfaces/partida.interface";
 
 export interface DesafiosServiceInterface {
   criar(desafioDto: CriarDesafioDto): Promise<Desafio>;

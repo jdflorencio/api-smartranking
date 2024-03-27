@@ -18,7 +18,7 @@ import { Desafio } from "./interfaces/desafio.interface";
 import { ApiTags } from "@nestjs/swagger";
 import { ValidacaoParametrosPipe } from "src/common/pipes/validacao-parametros.pipe";
 import { DesafioStatusValidacaoPipe } from "./pipes/desafio-status-validacao.pipe";
-import { Partida } from "src/partidas/interfaces/partida.interface";
+import { Partida } from "./interfaces/partida.interface";
 @ApiTags("Desafios")
 @Controller("api/v1/desafios")
 export class DesafiosController {
