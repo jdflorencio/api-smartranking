@@ -20,5 +20,9 @@ export interface Partida extends Document {
 }
 
 export interface Resultado {
+  /**
+   * Set o resultado 
+   * @exemple "6-1"
+   */
   set: string;
 }

@@ -12,6 +12,6 @@ export interface DesafiosServiceInterface {
   atribuirPartidaDesafio(
     _id: string,
     atribuirDesafiosPartidasDto: AtribuirDesafiosPartidasDto
-  ): Promise<Partida>;
+  ): Promise<void>;
   deleteById(_id: string): Promise<void>;
 }

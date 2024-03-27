@@ -32,9 +32,10 @@ export class DesafiosController {
   @Post(`/:desafio/partida/`)
   async atribuirPartidaDesafio(
     @Param("desafio") _id: string,
-    @Body(ValidationPipe) atribuirDesafiosPartidasDto: AtribuirDesafiosPartidasDto
-  ): Promise<Partida> {
-    return await this.service.atribuirPartidaDesafio(_id, atribuirDesafiosPartidasDto);
+    @Body(ValidationPipe)
+    atribuirDesafiosPartidasDto: AtribuirDesafiosPartidasDto
+  ): Promise<void> {
+    await this.service.atribuirPartidaDesafio(_id, atribuirDesafiosPartidasDto);
   }
 
   @Put(`/:desafio`)
