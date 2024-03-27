@@ -1,0 +1,39 @@
+service: '3.9'
+
+services:
+  api:
+    container_name: smartranking-api
+    build: .
+    ports:
+    - "3000:3000"
+    volumes:
+      - .:/home/node/app
+    depends_on:
+     - mongo
+    networks:
+      - smartranking
+  mongo:    
+    image: mongo
+    restart: always
+    enviromment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: User@123
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+  rabbitmq:
+    container_name: rabbit
+    image: rabbitmq:3.11.26-management
+    ports: 
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=User@123
+  
