@@ -1,11 +1,12 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from "@nestjs/common";
 import { CriarDesafioDto } from "./dtos/criar-desafio.dto";
 import { AtualizarDesafioDto } from "./dtos/atualizar-desafio.dto";
-import { Desafio } from "./interfaces/desafio.interface";
+import { Desafio, Partida } from "./interfaces/desafio.interface";
 import { DesafiosStatus } from "./interfaces/desafio-status.enum";
 import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
@@ -14,14 +15,18 @@ import { CategoriasService } from "src/categorias/categorias.service";
 import { AtribuirDesafiosPartidasDto } from "./dtos/atribuir-desafios-partidas.dto";
 import { Categoria } from "src/categorias/interfaces/categorias.interface";
 import { DesafiosServiceInterface } from "./interfaces/desafio-service.interface";
+import { Jogador } from "src/jogadores/interfaces/jogador.interface";
 
 @Injectable()
 export class DesafiosService implements DesafiosServiceInterface {
   constructor(
     @InjectModel("Desafio") private readonly desafioModel: Model<Desafio>,
+    @InjectModel("Partida") private readonly partidasModel: Model<Partida>,
     private readonly jogadorService: JogadoresService,
     private readonly categoriaService: CategoriasService
   ) {}
+
+  private readonly logger = new Logger(DesafiosService.name);
 
   private async verificarJogador(_id: string): Promise<void> {
     await this.jogadorService.getById(_id);
@@ -70,18 +75,14 @@ export class DesafiosService implements DesafiosServiceInterface {
     desafioDto: AtualizarDesafioDto
   ): Promise<Desafio> {
     try {
-      const findDesafio = await this.desafioModel.findById(_id).exec();
+      const findDesafio: Desafio = await this.desafioModel.findById(_id).exec();
       if (!findDesafio) throw new NotFoundException(`Desafio não encontrado`);
 
-      findDesafio;
-      if (
-        findDesafio.status == DesafiosStatus.PENDENTE ||
-        DesafiosStatus.REALIZADO
-      ) {
-        throw new BadRequestException(
-          `Status PENDENTE E REALIZADO não podem ser alterado.`
-        );
+      if (desafioDto.status) {
+        findDesafio.dataHoraResposta = new Date();
       }
+
+      findDesafio.status = desafioDto.status;
 
       return await this.desafioModel.findByIdAndUpdate(
         { _id },
@@ -104,8 +105,7 @@ export class DesafiosService implements DesafiosServiceInterface {
   }
 
   async getJogadorDesafio(_id: string): Promise<Desafio> {
-
-    await this.verificarJogador(_id)
+    await this.verificarJogador(_id);
 
     const query = {
       jogadores: {
@@ -119,21 +119,42 @@ export class DesafiosService implements DesafiosServiceInterface {
   }
 
   async getGetAll(): Promise<Desafio[]> {
-    return await await this.desafioModel.find()
-    .populate("solicitante")
-    .populate("jogadores")
-    .populate("partida")
-    .exec();
+    return await await this.desafioModel
+      .find()
+      .populate("solicitante")
+      .populate("jogadores")
+      .populate("partida")
+      .exec();
   }
 
   async atribuirPartidaDesafio(
     _id: string,
     atribuirDesafiosPartidasDto: AtribuirDesafiosPartidasDto
-  ): Promise<void> {
-    await this.desafioModel.updateOne(
-      { _id },
-      { $set: atribuirDesafiosPartidasDto }
+  ): Promise<Partida> {
+    const findDesafio: Desafio = await this.desafioModel.findById(_id).exec();
+
+    if (!findDesafio) {
+      throw new NotFoundException(`Desafio Não Encontrado`);
+    }
+
+    const findJogadorDesafio: Jogador = await findDesafio.jogadores.find(
+      (jogador) => jogador._id == atribuirDesafiosPartidasDto.def
     );
+
+    if (!findJogadorDesafio) {
+      throw new BadRequestException(
+        `O Jogador vencedor não faz parte do desafio!`
+      );
+    }
+
+    const partidaCriada: Partida = new this.partidasModel(
+      atribuirDesafiosPartidasDto
+    );
+
+    partidaCriada.categoria = findDesafio.categoria;
+    partidaCriada.jogadores = findDesafio.jogadores;
+    const resultado = await partidaCriada.save();
+    return resultado;
   }
 
   async deleteById(_id: string): Promise<void> {
