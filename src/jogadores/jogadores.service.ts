@@ -2,18 +2,18 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-} from '@nestjs/common';
-import { CriarJogadorDto } from './dtos/criar-jogador.dto';
-import { AtualizarJogadorDto } from './dtos/atualizar-jogador.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Jogador } from './interfaces/jogador.interface';
+} from "@nestjs/common";
+import { CriarJogadorDto } from "./dtos/criar-jogador.dto";
+import { AtualizarJogadorDto } from "./dtos/atualizar-jogador.dto";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { Jogador } from "./interfaces/jogador.interface";
 
 //esse classe passou a ser um provider
 @Injectable()
 export class JogadoresService {
   constructor(
-    @InjectModel('Jogador') private readonly jogadorModel: Model<Jogador>,
+    @InjectModel("Jogador") private readonly jogadorModel: Model<Jogador>
   ) {}
 
   async criar(criaJogadorDto: CriarJogadorDto): Promise<Jogador> {
@@ -30,7 +30,7 @@ export class JogadoresService {
 
   async atualizar(
     _id: string,
-    atualizaJogadorDto: AtualizarJogadorDto,
+    atualizaJogadorDto: AtualizarJogadorDto
   ): Promise<Jogador> {
     const findJogador = await this.jogadorModel.findById(_id).exec();
 
@@ -38,7 +38,7 @@ export class JogadoresService {
 
     return await this.jogadorModel.findOneAndUpdate(
       { _id },
-      { $set: atualizaJogadorDto },
+      { $set: atualizaJogadorDto }
     );
   }
 
@@ -50,7 +50,7 @@ export class JogadoresService {
     try {
       const jogador = await this.jogadorModel.findById(_id).exec();
       if (!jogador)
-        throw new NotFoundException(`Jogador com email ${_id} not found`);
+        throw new NotFoundException(`Jogador com id: ${_id} not found`);
       return jogador;
     } catch (error) {
       return Promise.reject(error);

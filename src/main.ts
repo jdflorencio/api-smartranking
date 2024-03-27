@@ -8,7 +8,7 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
 
   const config = new DocumentBuilder()
-    .setTitle('API - SmartRanking')
+    .setTitle('SmartRanking - API')
     .setDescription('API para gerenciar ranks de competição')
     .setVersion('1.0')
     .addTag('Jogadores')
