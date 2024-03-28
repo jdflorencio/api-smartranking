@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  api:
+    container_name: backend
+    build:
+      context: .
+    command: npm run start:dev
+    ports:
+      - "3333:3333"
+    volumes:
+      - .:/home/node/app
+    depends_on:
+      - rabbitmq
+    environment:
+      - MONGO_URL=mongodb://root:User123@mongo:27017/smartranking
+    networks:
+      - api
+  #mongodb:
+  #  container_name: mongo
+  #  build:
+  #    context: .
+  #    dockerfile: Dockerfile-mongo
+  #  restart: always
+  #  ports:
+  #   - 27017:27017
+  #  environment:
+  #    MONGO_INITDB_ROOT_USERNAME: root
+  #    MONGO_INITDB_ROOT_PASSWORD: User123
+  #    MONGO_INITDB_DATABASE: smartranking
+  #  #command: bash -c "/usr/local/bin/wait-for-it.sh"
+  #  volumes:
+  #    - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+  #  networks:
+  #   - api
+  rabbitmq:
+    container_name: rabbit
+    image: rabbitmq:3.11.26-management
+    ports:
+     - 5672:5672
+     - 15672:15672
+    environment:
+     - RABBITMQ_DEFAULT_USER=rabbitmq
+     - RABBITMQ_DEFAULT_PASS=User@123
+    networks:
+     - api
+
+networks:
+  api:
+    driver: bridge
