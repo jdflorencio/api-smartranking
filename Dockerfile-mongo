@@ -1,0 +1,13 @@
+# Dockerfile
+
+# Use a imagem base do MongoDB
+FROM mongo:latest
+
+# Instala o pacote netcat
+#RUN apt-get update && apt-get install -y netcat
+
+# Copie o script wait-for-it.sh para o diretório /usr/local/bin dentro do contêiner
+#COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
+
+# Dê permissão de execução ao script
+#RUN chmod +x /usr/local/bin/wait-for-it.sh
